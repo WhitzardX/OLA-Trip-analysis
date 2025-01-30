@@ -13,26 +13,26 @@ from sklearn.ensemble import RandomForestRegressor
 from scipy.stats import zscore
 
 # Streamlit Page configuration
-st.set_page_config(page_title="Ola Trips Data Analysis", page_icon="🚗", layout="wide")
+    st.set_page_config(page_title="Ola Trips Data Analysis", page_icon="🚗", layout="wide")
 
 # Title and Introduction
-st.title("Ola Trips Data Analysis and Insights")
-st.write("This app analyzes the Ola Trips dataset to provide key insights on trip trends, ride categories, and cost structures, along with predictions using machine learning models.")
+    st.title("Ola Trips Data Analysis and Insights")
+    st.write("This app analyzes the Ola Trips dataset to provide key insights on trip trends, ride categories, and cost structures, along with predictions using machine learning models.")
 
 # File Upload Section
-st.sidebar.title("Upload Dataset")
-uploaded_file = st.sidebar.file_uploader("Upload your CSV or Excel file", type=["csv", "xlsx"])
+    st.sidebar.title("Upload Dataset")
+    uploaded_file = st.sidebar.file_uploader("Upload your CSV or Excel file", type=["csv", "xlsx"])
 
-if uploaded_file is not None:
-    if uploaded_file.name.endswith('xlsx'):
-        df = pd.read_excel(uploaded_file)
-    else:
-        df = pd.read_csv(uploaded_file)
-    df['booking id'] = df['booking id'].astype('str')
-    st.write("### Dataset Overview")
-    st.write(df.head(5))
-    st.write(f"Dataset Shape: {df.shape}")
-    st.write(f"Column Names: {', '.join(df.columns)}")
+    if uploaded_file is not None:
+        if uploaded_file.name.endswith('xlsx'):
+            df = pd.read_excel(uploaded_file)
+        else:
+            df = pd.read_csv(uploaded_file)
+        df['booking id'] = df['booking id'].astype('str')
+        st.write("### Dataset Overview")
+        st.write(df.head(5))
+        st.write(f"Dataset Shape: {df.shape}")
+        st.write(f"Column Names: {', '.join(df.columns)}")
     
     # Data Preprocessing and Feature Engineering
     st.write("### Feature Engineering and Data Preprocessing")
@@ -216,5 +216,4 @@ if uploaded_file is not None:
     st.write("### Conclusion")
     st.write("By analyzing the data and building predictive models, we can gain valuable insights into ride trends and optimize pricing strategies and resource allocation.")
 
-# Run the Streamlit app by executing the following in the terminal:
-# streamlit run app.py
+# Good bye
