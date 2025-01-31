@@ -1,5 +1,3 @@
-# OLA-Trip-analysis
-This app analyzes the Ola Trips dataset to provide key insights on trip trends, ride categories, and cost structures, along with predictions using machine learning models.
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -13,26 +11,26 @@ from sklearn.ensemble import RandomForestRegressor
 from scipy.stats import zscore
 
 # Streamlit Page configuration
-    st.set_page_config(page_title="Ola Trips Data Analysis", page_icon="🚗", layout="wide")
+st.set_page_config(page_title="Ola Trips Data Analysis", page_icon="🚗", layout="wide")
 
 # Title and Introduction
-    st.title("Ola Trips Data Analysis and Insights")
-    st.write("This app analyzes the Ola Trips dataset to provide key insights on trip trends, ride categories, and cost structures, along with predictions using machine learning models.")
+st.title("Ola Trips Data Analysis and Insights")
+st.write("This app analyzes the Ola Trips dataset to provide key insights on trip trends, ride categories, and cost structures, along with predictions using machine learning models.")
 
 # File Upload Section
-    st.sidebar.title("Upload Dataset")
-    uploaded_file = st.sidebar.file_uploader("Upload your CSV or Excel file", type=["csv", "xlsx"])
+st.sidebar.title("Upload Dataset")
+uploaded_file = st.sidebar.file_uploader("Upload your CSV or Excel file", type=["csv", "xlsx"])
 
-    if uploaded_file is not None:
-        if uploaded_file.name.endswith('xlsx'):
-            df = pd.read_excel(uploaded_file)
-        else:
-            df = pd.read_csv(uploaded_file)
-        df['booking id'] = df['booking id'].astype('str')
-        st.write("### Dataset Overview")
-        st.write(df.head(5))
-        st.write(f"Dataset Shape: {df.shape}")
-        st.write(f"Column Names: {', '.join(df.columns)}")
+if uploaded_file is not None:
+    if uploaded_file.name.endswith('xlsx'):
+        df = pd.read_excel(uploaded_file)
+    else:
+        df = pd.read_csv(uploaded_file)
+    df['booking id'] = df['booking id'].astype('str')
+    st.write("### Dataset Overview")
+    st.write(df.head(5))
+    st.write(f"Dataset Shape: {df.shape}")
+    st.write(f"Column Names: {', '.join(df.columns)}")
     
     # Data Preprocessing and Feature Engineering
     st.write("### Feature Engineering and Data Preprocessing")
@@ -41,6 +39,13 @@ from scipy.stats import zscore
     df['time_of_day'] = pd.to_timedelta(df['time_of_day']).dt.components.hours
     df['weekday_weekend'] = list(map(lambda x: 'Weekend' if x in ('Sat', 'Sun') else 'Weekday', df['day_of_week']))
     
+    # Removing unnecessary columns
+    df.rename(columns={'booking_date_time': 'year'}, inplace=True)
+    
+    # Display Preprocessed Data
+    st.write(df.head(3))
+
+
     # Fill Missing Values
     reason_mode = df['reason'].mode()[0]
     df['reason'] = df['reason'].fillna(reason_mode)
@@ -56,11 +61,12 @@ from scipy.stats import zscore
         # Plotting
         st.write("### Monthly Day-of-Week Count")
         fig, ax = plt.subplots(figsize=(10, 6))
-        monthly_day_counts.plot.line(ax=ax, color='blue')
+        monthly_day_counts.plot.line(ax=ax, color='gray')
         ax.set_title("Day of Week Count by Month")
         ax.set_xlabel("Month")
         ax.set_ylabel("Day of Week Count")
         st.pyplot(fig)
+        st.write("- **Revenue Trends**: There is a significant increase in rides during **April**, likely due to seasonal factors.")
     
     def am_pm(x):
         if x <=6:
@@ -74,12 +80,7 @@ from scipy.stats import zscore
 
     df['am_or_pm'] = df['time_of_day'].apply(am_pm)
 
-    # Removing unnecessary columns
-    df.rename(columns={'booking_date_time': 'year'}, inplace=True)
     
-    # Display Preprocessed Data
-    st.write(df.head(3))
-
 ### Step 2: Interactive Metrics Section
 
     # Total Trips
@@ -102,39 +103,69 @@ from scipy.stats import zscore
 ### Step 3: Visualizations Section
 
     # Visualize the Most Frequent Trip Reasons
-    st.write("### Most Frequent Trip Reasons")
+    st.write("### 🔍 Most Frequent Trip Reasons")
     fig, ax = plt.subplots()
-    most_frequent_reasons.plot(kind='bar', ax=ax, color='skyblue')
-    ax.set_title('Most Frequent Trip Reasons')
-    ax.set_ylabel('Frequency')
-    ax.set_xlabel('Trip Reason')
+    sns.barplot(y=df['reason'].value_counts().nlargest(5).index, x=df['reason'].value_counts().nlargest(5), palette='gray', ax=ax)
+    ax.set_xlabel("Count")
+    ax.set_ylabel("Trip Reason")
+    ax.set_title("Top 5 Trip Reasons")
     st.pyplot(fig)
-
+    
     # Visualize Distribution of Fare
     st.write("### Distribution of Fare (Total Trip Cost)")
     fig, ax = plt.subplots()
-    sns.histplot(df['total_trip_cost'], kde=True, ax=ax, color='blue')
+    sns.histplot(df['total_trip_cost'], kde=True, ax=ax, color='gray')
     ax.set_title('Fare Distribution')
     ax.set_xlabel('Fare ($)')
     st.pyplot(fig)
-    
-    # Visualize Peak Ride Times
-    st.write("### Peak Ride Times (Time of Day vs Day of Week)")
-    heatmap_data = pd.pivot_table(df, values='booking id', columns='am_or_pm', index='weekday_weekend', aggfunc='count')
+
+# Visualize Top 3 Ride Reasons (Pie Chart)
+    st.write("### Top 3 Ride Reasons Distribution")
     fig, ax = plt.subplots()
-    sns.heatmap(heatmap_data, annot=True, cmap="YlGnBu", ax=ax)
-    ax.set_title('Peak Ride Times')
+    df['reason'].value_counts().nlargest(3).plot(kind='pie', autopct='%1.1f%%', startangle=90, cmap='coolwarm', ax=ax)
+    ax.set_ylabel('')
+    ax.set_title('Top 3 Ride Reasons Breakdown')
     st.pyplot(fig)
+    st.write("- **Observation**: The top 3 reasons for booking rides dominate the dataset, showing key user motivations.")  
+
+
+    # Visualize Peak Ride Times  
+    st.write("### Peak Ride Times (Time of Day vs Day of Week)")  
+    fig, ax = plt.subplots()  
+    df.groupby(['am_or_pm', 'weekday_weekend'])['day_of_week'].count().unstack().plot.bar(color=['black', 'gray'], ax=ax)  
+    ax.set_title('Peak Ride Times')  
+    st.pyplot(fig)  
+    st.write("- **Peak Ride Times**: The highest number of rides occur during **PM hours**, with a noticeable increase on weekends, suggesting more ride activity for leisure and social outings.")  
 
     # Ride Category Distribution
     st.write("### Distribution of Ride Categories")
     ride_category_count = df['category'].value_counts()
     fig, ax = plt.subplots()
-    ride_category_count.plot(kind='bar', ax=ax, color='orange')
+    ride_category_count.plot(kind='bar', ax=ax, color='gray')
     ax.set_title('Ride Categories Distribution')
     ax.set_ylabel('Frequency')
     ax.set_xlabel('Ride Category')
     st.pyplot(fig)
+
+     # Ride Demand by Day of the Week
+    st.write("### 📅 Ride Demand by Day of the Week")
+    fig, ax = plt.subplots()
+    sns.barplot(x=df['day_of_week'].value_counts().index, y=df['day_of_week'].value_counts(), palette='gray', ax=ax)
+    ax.set_xlabel("Day of the Week")
+    ax.set_ylabel("Trip Count")
+    ax.set_title("Weekly Ride Demand")
+    st.pyplot(fig)
+
+    # Visualize Ride Distribution by Gender
+    st.write("### Distribution of Rides by Gender")
+    fig, ax = plt.subplots()
+    df['gender'].value_counts().plot(kind='bar', color=['gray', 'black'], ax=ax)
+    ax.set_xlabel('Gender')
+    ax.set_ylabel('Number of Rides')
+    ax.set_title('Distribution of Rides by Gender')
+    st.pyplot(fig)
+    st.write("- **Observation**: The chart highlights the gender split in ride bookings.")
+
 
 ### Step 4: Machine Learning Model Section (Linear Regression and Random Forest Regressor)
 
@@ -199,7 +230,49 @@ from scipy.stats import zscore
     ax.set_title("Random Forest Regressor: Actual vs Predicted")
     st.pyplot(fig)
 
-### Step 5: Insights and Recommendations
+### Step 5: Prediction Input Form
+
+    st.write("### Predict Trip Cost")
+    with st.form(key='prediction_form'):
+        # User input for prediction
+        month = st.selectbox("Month", df['month'].unique())
+        gender = st.selectbox("Gender", df['gender'].unique())
+        reason = st.selectbox("Reason", df['reason'].unique())
+        category = st.selectbox("Ride Category", df['category'].unique())
+        day_of_week = st.selectbox("Day of Week", df['day_of_week'].unique())
+        time_of_day = st.slider("Time of Day (in hours)", 0, 23)
+        # weekday_weekend = st.selectbox('Type of Day', df['weekday_weekend'].unique())
+        
+        submit_button = st.form_submit_button(label="Predict")
+
+        if submit_button:
+            input_data = {
+                'month': month,
+                'gender': gender,
+                'reason': reason,
+                'category': category,
+                'day_of_week': day_of_week,
+                'time_of_day': time_of_day,
+                #'weekday_weekend': type_of_day
+            }
+
+            input_df = pd.DataFrame([input_data])
+            
+            # Encode the input data
+            input_df_encoded = input_df.copy(deep = True)
+            for col in cols_to_encode:
+                input_df_encoded[col] = encoder.transform(input_df_encoded[col])
+            st.code(print(df['weekday_weekend'].values))
+            input_scaled = scaler.fit_transform(input_df_encoded)
+
+            # Make Predictions
+            prediction_lr = model.predict(input_scaled)
+            prediction_rfr = rfr_model.predict(input_scaled)
+
+            st.write(f"Predicted Fare using Linear Regression: ${prediction_lr[0]:.2f}")
+            st.write(f"Predicted Fare using Random Forest: ${prediction_rfr[0]:.2f}")
+
+### Step 6: Insights and Recommendations
 
     st.write("### Key Insights")
     st.write("- **Peak Ride Times**: Most rides are booked between **7 PM and 11 PM**, indicating that people typically use rides after work hours or for social events.")
@@ -214,6 +287,4 @@ from scipy.stats import zscore
     st.write("- **Revenue Optimization**: Focus on **April** as a high-traffic month and ensure sufficient availability of cars during this period.")
 
     st.write("### Conclusion")
-    st.write("By analyzing the data and building predictive models, we can gain valuable insights into ride trends and optimize pricing strategies and resource allocation.")
-
-# Good bye
+    st.write("By analyzing the data and building predictive models, we can optimize Ola's operations, maximize revenue, and enhance customer satisfaction.")
