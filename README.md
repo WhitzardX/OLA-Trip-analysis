@@ -1,36 +1,36 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error as MSE, mean_absolute_error as MAE, r2_score
-from sklearn.ensemble import RandomForestRegressor
-from scipy.stats import zscore
+    import streamlit as st   
+    import pandas as pd
+    import numpy as np
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+    from sklearn.preprocessing import LabelEncoder, StandardScaler
+    from sklearn.model_selection import train_test_split
+    from sklearn.linear_model import LinearRegression
+    from sklearn.metrics import mean_squared_error as MSE, mean_absolute_error as MAE, r2_score
+    from sklearn.ensemble import RandomForestRegressor
+    from scipy.stats import zscore
 
 # Streamlit Page configuration
-st.set_page_config(page_title="Ola Trips Data Analysis", page_icon="🚗", layout="wide")
+    st.set_page_config(page_title="Ola Trips Data Analysis", page_icon="🚗", layout="wide")
 
 # Title and Introduction
-st.title("Ola Trips Data Analysis and Insights")
-st.write("This app analyzes the Ola Trips dataset to provide key insights on trip trends, ride categories, and cost structures, along with predictions using machine learning models.")
+    st.title("Ola Trips Data Analysis and Insights")
+    st.write("This app analyzes the Ola Trips dataset to provide key insights on trip trends, ride categories, and cost structures, along with predictions using machine learning models.")
 
 # File Upload Section
-st.sidebar.title("Upload Dataset")
-uploaded_file = st.sidebar.file_uploader("Upload your CSV or Excel file", type=["csv", "xlsx"])
+    st.sidebar.title("Upload Dataset")
+    uploaded_file = st.sidebar.file_uploader("Upload your CSV or Excel file", type=["csv", "xlsx"])
 
-if uploaded_file is not None:
-    if uploaded_file.name.endswith('xlsx'):
-        df = pd.read_excel(uploaded_file)
-    else:
-        df = pd.read_csv(uploaded_file)
-    df['booking id'] = df['booking id'].astype('str')
-    st.write("### Dataset Overview")
-    st.write(df.head(5))
-    st.write(f"Dataset Shape: {df.shape}")
-    st.write(f"Column Names: {', '.join(df.columns)}")
+    if uploaded_file is not None:
+        if uploaded_file.name.endswith('xlsx'):
+            df = pd.read_excel(uploaded_file)
+        else:
+            df = pd.read_csv(uploaded_file)
+        df['booking id'] = df['booking id'].astype('str')
+        st.write("### Dataset Overview")
+        st.write(df.head(5))
+        st.write(f"Dataset Shape: {df.shape}")
+        st.write(f"Column Names: {', '.join(df.columns)}")
     
     # Data Preprocessing and Feature Engineering
     st.write("### Feature Engineering and Data Preprocessing")
