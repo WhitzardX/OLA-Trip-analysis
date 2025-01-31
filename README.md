@@ -1,4 +1,4 @@
-    import streamlit as st   
+    import streamlit as st
     import pandas as pd
     import numpy as np
     import seaborn as sns
@@ -12,11 +12,12 @@
 
 # Streamlit Page configuration
     st.set_page_config(page_title="Ola Trips Data Analysis", page_icon="🚗", layout="wide")
-
+    
 # Title and Introduction
     st.title("Ola Trips Data Analysis and Insights")
-    st.write("This app analyzes the Ola Trips dataset to provide key insights on trip trends, ride categories, and cost structures, along with predictions using machine learning models.")
-
+    st.write("The objective of this presentation is to analyze the Ola Trips dataset to provide key insights on trip trends, ride categories, and cost structures, along with predictions using machine learning models.")
+    st.write("Goal : Extract actionable insights related to trip trends, cost factors, user behavior, and more, "
+         "to inform business decisions and operational strategies.")
 # File Upload Section
     st.sidebar.title("Upload Dataset")
     uploaded_file = st.sidebar.file_uploader("Upload your CSV or Excel file", type=["csv", "xlsx"])
@@ -43,7 +44,7 @@
     df.rename(columns={'booking_date_time': 'year'}, inplace=True)
     
     # Display Preprocessed Data
-    st.write(df.head(3))
+    st.write(df.head(10))
 
 
     # Fill Missing Values
@@ -59,7 +60,7 @@
         monthly_day_counts = df.groupby('month')[['day_of_week']].count()
         
         # Plotting
-        st.write("### Monthly Day-of-Week Count")
+        st.write("### Monthly Weekday Distribution")
         fig, ax = plt.subplots(figsize=(10, 6))
         monthly_day_counts.plot.line(ax=ax, color='gray')
         ax.set_title("Day of Week Count by Month")
@@ -110,13 +111,22 @@
     ax.set_ylabel("Trip Reason")
     ax.set_title("Top 5 Trip Reasons")
     st.pyplot(fig)
-    
+
     # Visualize Distribution of Fare
     st.write("### Distribution of Fare (Total Trip Cost)")
     fig, ax = plt.subplots()
     sns.histplot(df['total_trip_cost'], kde=True, ax=ax, color='gray')
     ax.set_title('Fare Distribution')
     ax.set_xlabel('Fare ($)')
+    st.pyplot(fig)
+
+# Visualize scatter plot
+    st.write("### Scatter Plot of Total Trip Cost vs Distance Travelled")
+    fig, ax = plt.subplots()
+    df.plot.scatter(x='total_trip_cost', y='distance_travelled', color='gray', ax=ax)
+    ax.set_title('Total Trip Cost vs Distance Travelled')
+    ax.set_xlabel('Total Trip Cost')
+    ax.set_ylabel('Distance Travelled')
     st.pyplot(fig)
 
 # Visualize Top 3 Ride Reasons (Pie Chart)
@@ -165,6 +175,24 @@
     ax.set_title('Distribution of Rides by Gender')
     st.pyplot(fig)
     st.write("- **Observation**: The chart highlights the gender split in ride bookings.")
+
+
+### Step 6: Insights and Recommendations
+
+    st.write("### Key Insights")
+    st.write("- **Peak Ride Times**: Most rides are booked between **7 PM and 11 PM**, indicating that people typically use rides after work hours or for social events.")
+    st.write("- **Revenue Trends**: There is a significant increase in rides during **April**, likely due to seasonal factors.")
+    st.write("- **Ride Categories**: **Micro** and **Mini** cars are the most commonly chosen ride types.")
+    st.write("- **Fare Distribution**: The average fare is strongly correlated with the **distance travelled**.")
+    
+    st.write("### Recommendations")
+    st.write("- **Peak Pricing**: Implement higher fares during peak hours (7 PM - 11 PM) to optimize revenue.")
+    st.write("- **Optimal Driver Deployment**: Deploy more **Micro** and **Mini** cars as they are in higher demand.")
+    st.write("- **Promotional Offers**: Consider offering discounts during off-peak periods to encourage more bookings.")
+    st.write("- **Revenue Optimization**: Focus on **April** as a high-traffic month and ensure sufficient availability of cars during this period.")
+
+    st.write("### Conclusion")
+    st.write("By analyzing the data and building predictive models, we can optimize Ola's operations, maximize revenue, and enhance customer satisfaction.")
 
 
 ### Step 4: Machine Learning Model Section (Linear Regression and Random Forest Regressor)
@@ -272,19 +300,3 @@
             st.write(f"Predicted Fare using Linear Regression: ${prediction_lr[0]:.2f}")
             st.write(f"Predicted Fare using Random Forest: ${prediction_rfr[0]:.2f}")
 
-### Step 6: Insights and Recommendations
-
-    st.write("### Key Insights")
-    st.write("- **Peak Ride Times**: Most rides are booked between **7 PM and 11 PM**, indicating that people typically use rides after work hours or for social events.")
-    st.write("- **Revenue Trends**: There is a significant increase in rides during **April**, likely due to seasonal factors.")
-    st.write("- **Ride Categories**: **Micro** and **Mini** cars are the most commonly chosen ride types.")
-    st.write("- **Fare Distribution**: The average fare is strongly correlated with the **distance travelled**.")
-    
-    st.write("### Recommendations")
-    st.write("- **Peak Pricing**: Implement higher fares during peak hours (7 PM - 11 PM) to optimize revenue.")
-    st.write("- **Optimal Driver Deployment**: Deploy more **Micro** and **Mini** cars as they are in higher demand.")
-    st.write("- **Promotional Offers**: Consider offering discounts during off-peak periods to encourage more bookings.")
-    st.write("- **Revenue Optimization**: Focus on **April** as a high-traffic month and ensure sufficient availability of cars during this period.")
-
-    st.write("### Conclusion")
-    st.write("By analyzing the data and building predictive models, we can optimize Ola's operations, maximize revenue, and enhance customer satisfaction.")
